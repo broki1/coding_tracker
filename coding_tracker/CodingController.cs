@@ -55,8 +55,7 @@ internal class CodingController
 
         ConsoleTableBuilder.From(tableData).ExportAndWriteLine();
 
-        Console.WriteLine("\n\nPress any key to continue.");
-        Console.ReadKey();
+        Console.ReadLine();
     }
 
     internal void Post(CodingSession codingSession)
@@ -70,8 +69,42 @@ internal class CodingController
             tableCmd.CommandText = $"INSERT INTO coding (Date, StartTime, EndTime, Duration) VALUES ('{codingSession.Date}', '{codingSession.StartTime}', '{codingSession.EndTime}', '{codingSession.Duration}')";
 
             tableCmd.ExecuteNonQuery();
-
-            connection.Close();
         }
+    }
+
+    internal void Update(CodingSession codingSession, int id)
+    {
+        using (var connection = new SqliteConnection(connectionString))
+        {
+            connection.Open();
+            var tableCmd = connection.CreateCommand();
+            tableCmd.CommandText = @$"UPDATE coding SET Date = '{codingSession.Date}',
+                                      StartTime = '{codingSession.StartTime}',
+                                      EndTime = '{codingSession.EndTime}',
+                                      Duration = '{codingSession.Duration}'
+                                      WHERE Id = {id}";
+
+            tableCmd.ExecuteNonQuery();
+        }
+    }
+
+    internal bool CheckId(int id)
+    {
+        bool exists = false;
+        using (var connection = new SqliteConnection(connectionString))
+        {
+            connection.Open();
+            var tableCmd = connection.CreateCommand();
+            tableCmd.CommandText = $"SELECT EXISTS (SELECT 1 FROM coding WHERE Id = {id})";
+            
+            var result = Convert.ToInt32(tableCmd.ExecuteScalar());
+
+            if (result == 1)
+            {
+                exists = true;
+            }
+        }
+
+        return exists;
     }
 }

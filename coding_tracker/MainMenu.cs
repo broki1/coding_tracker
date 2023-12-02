@@ -47,6 +47,7 @@ namespace coding_tracker
                         MainMenu.ProcessAdd();
                         break;
                     case "3":
+                        MainMenu.ProcessUpdate();
                         break;
                     case "4":
                         break;
@@ -56,6 +57,35 @@ namespace coding_tracker
                 }
             }
 
+        }
+
+        private static void ProcessUpdate()
+        {
+            codingController.Get();
+
+            Console.WriteLine("\n\nPlease enter the ID of the record you want to update.");
+            var id = Console.ReadLine().Trim();
+
+            while (!int.TryParse(id, out _) || !codingController.CheckId(int.Parse(id)))
+            {
+                Console.WriteLine("\n\nInvalid input. Please enter the ID of the record you want to update.");
+                id = Console.ReadLine();
+            }
+
+            var date = MainMenu.GetDateInput();
+            var startTime = MainMenu.GetTime("start");
+            var endTime = MainMenu.GetTime("end");
+
+            var duration = MainMenu.CalculateDuration(startTime, endTime);
+
+            CodingSession codingSession = new CodingSession();
+
+            codingSession.Date = date;
+            codingSession.StartTime = startTime;
+            codingSession.EndTime = endTime;
+            codingSession.Duration = duration.ToString();
+
+            codingController.Update(codingSession, int.Parse(id));
         }
 
         private static void ProcessAdd()
