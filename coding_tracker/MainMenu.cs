@@ -61,36 +61,51 @@ namespace coding_tracker
         private static void ProcessAdd()
         {
             var date = MainMenu.GetDateInput();
+            var startTime = MainMenu.GetTime("start");
+            var endTime = MainMenu.GetTime("end");
 
-            var duration = MainMenu.GetDurationInput();
+            var duration = MainMenu.CalculateDuration(startTime, endTime);
 
             CodingSession codingSession = new CodingSession();
 
             codingSession.Date = date;
-            codingSession.Duration = duration;
+            codingSession.StartTime = startTime;
+            codingSession.EndTime = endTime;
+            codingSession.Duration = duration.ToString();
 
             codingController.Post(codingSession);
         }
 
-        private static string GetDurationInput()
+        private static string GetTime(string startOrEnd)
         {
-            Console.WriteLine("Please enter the duration: (Format: hh:mm). Type 0 to return to the main menu.");
+            Console.WriteLine($"Please enter the {startOrEnd} time: (Format (24-hour): hh:mm). Type 0 to return to the main menu.");
+            var time = Console.ReadLine().Trim();
 
-            var durationInput = Console.ReadLine().Trim();
+            if (time == "0") MainMenu.Start();
 
-            if (durationInput == "0") MainMenu.Start();
-
-            while (!TimeSpan.TryParseExact(durationInput, "h\\:mm", CultureInfo.InvariantCulture, out _))
+            while (!DateTime.TryParseExact(time, "HH:mm", new CultureInfo("en-US"), DateTimeStyles.None, out _))
             {
-                Console.WriteLine("\n\nNot a valid duration. Please enter duration in the format: hh:mm\n\n");
-
-                durationInput = Console.ReadLine().Trim();
-
-                if (durationInput == "0") MainMenu.Start();
+                Console.WriteLine("\n\nInvalid input. Please enter the start time in (HH:mm) format.");
+                time = Console.ReadLine().Trim();
             }
 
-            return durationInput;
+            return time;
         }
+
+        private static TimeSpan CalculateDuration(string startTime, string endTime)
+        {
+            TimeSpan duration = DateTime.Parse(endTime) - DateTime.Parse(startTime);
+
+            if (duration <= TimeSpan.Zero)
+            {
+                duration = duration.Add(TimeSpan.FromDays(1));
+                Console.WriteLine(duration.ToString());
+            }
+
+            return duration;
+        }
+
+
 
         private static string GetDateInput()
         {

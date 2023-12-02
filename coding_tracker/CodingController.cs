@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using ConsoleTableExt;
+using Microsoft.Data.Sqlite;
 using System.Configuration;
 
 namespace coding_tracker;
@@ -25,8 +26,6 @@ internal class CodingController
 
                 if (reader.HasRows)
                 {
-                    Console.WriteLine("ID\t\tDate\t\t\tDuration");
-                    Console.WriteLine("---------------------------------------------");
 
                     while (reader.Read())
                     {
@@ -34,7 +33,9 @@ internal class CodingController
                         {
                             Id = reader.GetInt32(0),
                             Date = reader.GetString(1),
-                            Duration = reader.GetString(2)
+                            StartTime = reader.GetString(2),
+                            EndTime = reader.GetString(3),
+                            Duration = reader.GetString(4)
                         });
                     }
                 } else
@@ -46,7 +47,13 @@ internal class CodingController
             }
         }
 
+        Console.WriteLine("-----------------------------------------");
+        Console.WriteLine("\tCoding Tracker Table");
+        Console.WriteLine("-----------------------------------------");
+
         Console.WriteLine("\n\n");
+
+        ConsoleTableBuilder.From(tableData).ExportAndWriteLine();
 
         Console.WriteLine("\n\nPress any key to continue.");
         Console.ReadKey();
@@ -60,7 +67,7 @@ internal class CodingController
 
             var tableCmd = connection.CreateCommand();
 
-            tableCmd.CommandText = $"INSERT INTO coding (Date, Duration) VALUES ('{codingSession.Date}', '{codingSession.Duration}')";
+            tableCmd.CommandText = $"INSERT INTO coding (Date, StartTime, EndTime, Duration) VALUES ('{codingSession.Date}', '{codingSession.StartTime}', '{codingSession.EndTime}', '{codingSession.Duration}')";
 
             tableCmd.ExecuteNonQuery();
 

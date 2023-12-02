@@ -15,6 +15,8 @@ internal class DatabaseManager
             createTableCmd.CommandText = @"CREATE TABLE IF NOT EXISTS coding(
                                             Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                             Date TEXT,
+                                            StartTime TEXT,
+                                            EndTime TEXT,
                                             Duration TEXT
                                          )";
 
