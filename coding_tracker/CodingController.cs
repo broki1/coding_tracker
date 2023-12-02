@@ -107,4 +107,15 @@ internal class CodingController
 
         return exists;
     }
+
+    internal void Delete(int id)
+    {
+        using (var connection = new SqliteConnection(connectionString))
+        {
+            connection.Open();
+            var tableCmd = connection.CreateCommand();
+            tableCmd.CommandText = $"DELETE FROM coding WHERE Id = {id}";
+            tableCmd.ExecuteNonQuery();
+        }
+    }
 }
