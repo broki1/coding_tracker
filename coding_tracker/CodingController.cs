@@ -54,8 +54,6 @@ internal class CodingController
         Console.WriteLine("\n\n");
 
         ConsoleTableBuilder.From(tableData).ExportAndWriteLine();
-
-        Console.ReadLine();
     }
 
     internal void Post(CodingSession codingSession)

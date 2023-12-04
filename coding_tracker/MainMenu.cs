@@ -1,5 +1,6 @@
 ﻿
 using System.Configuration;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace coding_tracker
@@ -8,6 +9,10 @@ namespace coding_tracker
     {
 
         static CodingController codingController = new CodingController();
+        static Stopwatch stopwatch = new Stopwatch();
+
+        static string stopwatchStartTime = "";
+        static string stopwatchStopTime = "";
 
         internal static void Start()
         {
@@ -16,6 +21,7 @@ namespace coding_tracker
             while (!closeApp)
             {
                 Console.Clear();
+
                 Console.WriteLine("-------------------------------------------");
                 Console.WriteLine("Welcome to the Coding Tracker app!");
                 Console.WriteLine("-------------------------------------------\n\n");
@@ -24,13 +30,14 @@ namespace coding_tracker
                 Console.WriteLine("Enter 1 to view record.");
                 Console.WriteLine("Enter 2 to add record.");
                 Console.WriteLine("Enter 3 to update record.");
-                Console.WriteLine("Enter 4 to delete record.\n\n");
+                Console.WriteLine("Enter 4 to delete record.");
+                Console.WriteLine("Enter 5 to start new coding session or to end current one.");
 
                 var userInput = Console.ReadLine().Trim();
 
                 while (string.IsNullOrEmpty(userInput) || !int.TryParse(userInput, out _))
                 {
-                    Console.WriteLine("\nInvalid input. Please enter a number from 0 to 4.\n");
+                    Console.WriteLine("\nInvalid input. Please enter a number from 0 to 5.\n");
                     userInput = Console.ReadLine().Trim();
                 }
 
@@ -42,18 +49,36 @@ namespace coding_tracker
                         break;
                     case "1":
                         codingController.Get();
+                        Console.WriteLine("\n\nPress any key to continue.");
+                        Console.ReadKey();
                         break;
                     case "2":
                         MainMenu.ProcessAdd();
+                        Console.WriteLine("\n\nPress any key to continue.");
+                        Console.ReadKey();
                         break;
                     case "3":
                         MainMenu.ProcessUpdate();
+                        Console.WriteLine("\n\nPress any key to continue.");
+                        Console.ReadKey();
                         break;
                     case "4":
                         MainMenu.ProcessDelete();
+                        Console.WriteLine("\n\nPress any key to continue.");
+                        Console.ReadKey();
+                        break;
+                    case "5":
+                        if (stopwatch.IsRunning)
+                        {
+                            EndCurrentSession();
+                        }
+                        else
+                        {
+                            TrackCurrentSession();
+                        }
                         break;
                     default:
-                        Console.WriteLine("\nInvalid input. Please enter a number from 0 to 4.\n");
+                        Console.WriteLine("\nInvalid input. Please enter a number from 0 to 5.\n");
                         break;
                 }
             }
@@ -74,6 +99,8 @@ namespace coding_tracker
             }
 
             codingController.Delete(int.Parse(id));
+
+            Console.WriteLine($"\nRecord with the ID {id} deleted.");
         }
 
         private static void ProcessUpdate()
@@ -103,6 +130,8 @@ namespace coding_tracker
             codingSession.Duration = duration.ToString();
 
             codingController.Update(codingSession, int.Parse(id));
+
+            Console.WriteLine($"\nRecord with ID {id} updated.");
         }
 
         private static void ProcessAdd()
@@ -121,6 +150,38 @@ namespace coding_tracker
             codingSession.Duration = duration.ToString();
 
             codingController.Post(codingSession);
+
+            Console.WriteLine("\nRecord added.");
+        }
+
+        private static void TrackCurrentSession()
+        {
+            stopwatch.Start();
+            MainMenu.stopwatchStartTime = DateTime.Now.ToLocalTime().ToString(@"HH\:mm\:ss");
+
+            Console.WriteLine("\n\nCoding session started. Press any key to continue.");
+            Console.ReadKey();
+        }
+
+        private static void EndCurrentSession()
+        {
+            stopwatch.Stop();
+            MainMenu.stopwatchStopTime = DateTime.Now.ToLocalTime().ToString(@"HH\:mm\:ss");
+
+            Console.WriteLine("\n\nCoding session ended. Press any key to continue.");
+
+            Console.ReadKey();
+
+            codingController.Post(
+                new CodingSession
+                {
+                    Date = DateTime.Now.Date.ToString("dd-MM-yy"),
+                    StartTime = MainMenu.stopwatchStartTime,
+                    EndTime = MainMenu.stopwatchStopTime,
+                    Duration = stopwatch.Elapsed.ToString(@"hh\:mm\:ss")
+
+                }
+            );
         }
 
         private static string GetTime(string startOrEnd)
@@ -136,7 +197,7 @@ namespace coding_tracker
                 time = Console.ReadLine().Trim();
             }
 
-            return time;
+            return time + ":00";
         }
 
         private static TimeSpan CalculateDuration(string startTime, string endTime)
@@ -151,8 +212,6 @@ namespace coding_tracker
 
             return duration;
         }
-
-
 
         private static string GetDateInput()
         {
