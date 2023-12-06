@@ -8,7 +8,9 @@ internal class CodingController
 {
     string connectionString = ConfigurationManager.AppSettings.Get("ConnectionString");
 
-    internal void Get()
+    string todaysDate = DateTime.Now.Date.ToString("MM-dd-yy");
+
+    internal void Get(string timeFrame = "")
     {
         Console.Clear();
 
@@ -21,6 +23,11 @@ internal class CodingController
                 connection.Open();
 
                 tableCmd.CommandText = "SELECT * FROM coding";
+
+                if (!string.IsNullOrEmpty(timeFrame))
+                {
+                    tableCmd.CommandText += $" WHERE date between '{timeFrame}' and '{todaysDate}'";
+                }
 
                 var reader = tableCmd.ExecuteReader();
 

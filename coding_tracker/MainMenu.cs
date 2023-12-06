@@ -48,7 +48,8 @@ namespace coding_tracker
                         closeApp = true;
                         break;
                     case "1":
-                        codingController.Get();
+                        var timeFrame = MainMenu.GetTimeFrameInput();
+                        codingController.Get(timeFrame);
                         Console.WriteLine("\n\nPress any key to continue.");
                         Console.ReadKey();
                         break;
@@ -175,7 +176,7 @@ namespace coding_tracker
             codingController.Post(
                 new CodingSession
                 {
-                    Date = DateTime.Now.Date.ToString("dd-MM-yy"),
+                    Date = DateTime.Now.Date.ToString("MM-dd-yy"),
                     StartTime = MainMenu.stopwatchStartTime,
                     EndTime = MainMenu.stopwatchStopTime,
                     Duration = stopwatch.Elapsed.ToString(@"hh\:mm\:ss")
@@ -215,15 +216,15 @@ namespace coding_tracker
 
         private static string GetDateInput()
         {
-            Console.WriteLine("\n\nPlease insert the date: (Format: dd-MM-yy). Type 0 to return to the main menu.\n\n");
+            Console.WriteLine("\n\nPlease insert the date: (Format: MM-dd-yy). Type 0 to return to the main menu.\n\n");
 
             var dateInput = Console.ReadLine().Trim();
 
             if (dateInput == "0") MainMenu.Start();
 
-            while (!DateTime.TryParseExact(dateInput, "dd-MM-yy", new CultureInfo("en-US"), DateTimeStyles.None, out _))
+            while (!DateTime.TryParseExact(dateInput, "MM-dd-yy", new CultureInfo("en-US"), DateTimeStyles.None, out _))
             {
-                Console.WriteLine("\n\nNot a valid date. Please enter date in the format: dd-MM-yy\n\n");
+                Console.WriteLine("\n\nNot a valid date. Please enter date in the format: MM-dd-yy\n\n");
 
                 dateInput = Console.ReadLine().Trim();
 
@@ -231,6 +232,77 @@ namespace coding_tracker
             }
 
             return dateInput;
+        }
+
+        private static string GetTimeFrameInput()
+        {
+            var timeFrame = "";
+            Console.Clear();
+            Console.WriteLine("\n\nHow would you like to filter the records?\n");
+            Console.WriteLine("1. None (view all)\n2. Days\n3. Weeks\n4. Months\n5. Years\n");
+            Console.WriteLine("\nPlease enter a number 1 to 5 to make your choice.\n");
+
+            var choice = Console.ReadLine().Trim();
+
+            while (string.IsNullOrEmpty(choice) || !int.TryParse(choice, out _) || !"12345".Contains(choice))
+            {
+                Console.WriteLine("\nInvalid input. Please enter a number 1 to 5 to make your choice.");
+                choice = Console.ReadLine().Trim();
+            }
+
+            switch (choice)
+            {
+                case "1":
+                    break;
+                case "2":
+                    timeFrame = GetSecondDate("days");
+                    break;
+                case "3":
+                    timeFrame = GetSecondDate("weeks");
+                    break;
+                case "4":
+                    timeFrame = GetSecondDate("months");
+                    break;
+                case "5":
+                    timeFrame = GetSecondDate("years");
+                    break;
+            }
+
+            return timeFrame;
+
+        }
+
+        public static string GetSecondDate(string daysWeeksMonthsOrYears)
+        {
+            Console.WriteLine($"How many {daysWeeksMonthsOrYears} of records would you like to see?\n");
+
+            var num = Console.ReadLine().Trim();
+
+            while (string.IsNullOrEmpty(num) || !int.TryParse(num, out _))
+            {
+                Console.WriteLine($"\nInvalid input. Please enter a valid number of {daysWeeksMonthsOrYears}.\n\n");
+                num = Console.ReadLine().Trim();
+            }
+
+            var date = "";
+
+            switch (daysWeeksMonthsOrYears)
+            {
+                case "days":
+                    date = DateTime.Now.Date.AddDays(- int.Parse(num)).ToString("MM-dd-yy");
+                    break;
+                case "weeks":
+                    date = DateTime.Now.Date.AddDays(-(int.Parse(num) * 7)).ToString("MM-dd-yy");
+                    break;
+                case "months":
+                    date = DateTime.Now.Date.AddMonths(-int.Parse(num)).ToString("MM-dd-yy");
+                    break;
+                case "years":
+                    date = DateTime.Now.Date.AddYears(-int.Parse(num)).ToString("MM-dd-yy");
+                    break;
+            }
+
+            return date;
         }
     }
 }
