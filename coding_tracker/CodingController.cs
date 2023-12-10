@@ -16,20 +16,28 @@ internal class CodingController
 
         List<CodingSession> tableData = new List<CodingSession>();
 
+        var numSessions = 0;
+
         using (var connection = new SqliteConnection(connectionString))
         {
+
             using (var tableCmd = connection.CreateCommand())
             {
                 connection.Open();
 
                 tableCmd.CommandText = "SELECT * FROM coding";
 
+                var numSessionsCmd = connection.CreateCommand();
+                numSessionsCmd.CommandText = "SELECT COUNT(*) FROM coding";
+
                 if (!string.IsNullOrEmpty(timeFrame))
                 {
                     tableCmd.CommandText += $" WHERE date between '{timeFrame}' and '{todaysDate}'";
+                    numSessionsCmd.CommandText += $" WHERE date between '{timeFrame}' and '{todaysDate}'";
                 }
 
                 var reader = tableCmd.ExecuteReader();
+                numSessions = Convert.ToInt32(numSessionsCmd.ExecuteScalar());
 
                 if (reader.HasRows)
                 {
@@ -61,6 +69,8 @@ internal class CodingController
         Console.WriteLine("\n\n");
 
         ConsoleTableBuilder.From(tableData).ExportAndWriteLine();
+
+        Console.WriteLine($"\n\nTotal coding sessions: {numSessions}");
     }
 
     internal void Post(CodingSession codingSession)

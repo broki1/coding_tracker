@@ -176,7 +176,7 @@ namespace coding_tracker
             codingController.Post(
                 new CodingSession
                 {
-                    Date = DateTime.Now.Date.ToString("MM-dd-yy"),
+                    Date = DateTime.Now.Date.ToString("yyyy-MM-dd"),
                     StartTime = MainMenu.stopwatchStartTime,
                     EndTime = MainMenu.stopwatchStopTime,
                     Duration = stopwatch.Elapsed.ToString(@"hh\:mm\:ss")
