@@ -231,7 +231,9 @@ namespace coding_tracker
                 if (dateInput == "0") MainMenu.Start();
             }
 
-            return dateInput;
+            var formattedDate = FormatDate(dateInput);
+
+            return formattedDate;
         }
 
         private static string GetTimeFrameInput()
@@ -289,20 +291,37 @@ namespace coding_tracker
             switch (daysWeeksMonthsOrYears)
             {
                 case "days":
-                    date = DateTime.Now.Date.AddDays(- int.Parse(num)).ToString("MM-dd-yy");
+                    date = DateTime.Now.Date.AddDays(- int.Parse(num)).ToString("yyyy-MM-dd");
                     break;
                 case "weeks":
-                    date = DateTime.Now.Date.AddDays(-(int.Parse(num) * 7)).ToString("MM-dd-yy");
+                    date = DateTime.Now.Date.AddDays(-(int.Parse(num) * 7)).ToString("yyyy-MM-dd");
                     break;
                 case "months":
-                    date = DateTime.Now.Date.AddMonths(-int.Parse(num)).ToString("MM-dd-yy");
+                    date = DateTime.Now.Date.AddMonths(-int.Parse(num)).ToString("yyyy-MM-dd");
                     break;
                 case "years":
-                    date = DateTime.Now.Date.AddYears(-int.Parse(num)).ToString("MM-dd-yy");
+                    date = DateTime.Now.Date.AddYears(-int.Parse(num)).ToString("yyyy-MM-dd");
                     break;
             }
 
             return date;
+        }
+
+        public static string FormatDate(string date)
+        {
+            string[] partsOfDate = date.Split("-");
+
+            var part1 = partsOfDate[0];
+            var part2 = partsOfDate[1];
+            var part3 = CultureInfo.CurrentCulture.Calendar.ToFourDigitYear(int.Parse(partsOfDate[2])).ToString();
+
+            partsOfDate[0] = part3;
+            partsOfDate[1] = part1;
+            partsOfDate[2] = part2;
+
+            var formattedDate = string.Join("-", partsOfDate);
+
+            return formattedDate;
         }
     }
 }

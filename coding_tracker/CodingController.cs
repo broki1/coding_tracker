@@ -8,7 +8,7 @@ internal class CodingController
 {
     string connectionString = ConfigurationManager.AppSettings.Get("ConnectionString");
 
-    string todaysDate = DateTime.Now.Date.ToString("MM-dd-yy");
+    string todaysDate = DateTime.Now.Date.ToString("yyyy-MM-dd");
 
     internal void Get(string timeFrame = "")
     {
